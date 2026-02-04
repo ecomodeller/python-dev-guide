@@ -2,7 +2,6 @@
 
 ## General coding style
 
-1. Follow the [PEP8 guidelines](https://www.python.org/dev/peps/pep-0008/).
 1. Lines may be up to 100 columns wide.
 1. Use [ruff](https://docs.astral.sh/ruff/) for linting and formatting. Configure in `pyproject.toml`:
    ```toml
@@ -22,12 +21,6 @@
 1. Python 3.11+ only.
 1. Use [`pathlib`](https://docs.python.org/library/pathlib.html) for handling file paths - never split by literal slashes.
 1. Separate I/O from logic: split tasks into (1) input, (2) processing (pure functions), and (3) output.
-1. Defensive programming: Be conscious of what you expect and raise descriptive exceptions when you do not get it:
-   ```python
-   infiles = list(Path("/path").glob("*.ext"))
-   if not infiles:
-       raise RuntimeError(f"No files found with pattern '{pattern}'")
-   ```
 1. Prefer f-strings for string formatting. Avoid the old `%` syntax or `+str(something)+`.
 
 ## Environment and dependency management
@@ -63,7 +56,6 @@ uv run pytest              # run commands in the project environment
 ## Packaging and releases
 
 1. Use `pyproject.toml` for all project metadata and configuration
-1. Use [`setuptools-scm`](https://github.com/pypa/setuptools_scm/) for versioning from git tags (see Git workflow)
 1. Automate the release
 
 # Compatibility
