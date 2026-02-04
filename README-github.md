@@ -3,37 +3,84 @@
 ## Repository creation
 
 1. Create public repositories whenever possible. But make sure they are tidy.
-2. Open Source is only open if you [add](https://docs.github.com/en/enterprise-server@3.0/github/building-a-strong-community/adding-a-license-to-a-repository) a corresponding license. Default to MIT.
+2. Open Source is only open if you [add a license](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository). Default to MIT.
 3. Naming: Prefer dashes `-` over underscores `_` in repo names (e.g. `my-python-package.git/my_python_package/__init__.py`).
+
+## Branches and protection
+
+1. Use `main` as the default branch name.
+2. Enable branch protection on `main`:
+   - Require pull request reviews before merging
+   - Require status checks to pass (CI)
+   - Do not allow bypassing the above settings
+3. Delete branches after merging (enable "Automatically delete head branches" in repo settings).
 
 ## Git workflow
 
-1. Great commit messages are short (`<=50` chars) and generally start with capitalized action words in imperative ("Add feature X", "Improve performance" rather than "Added ..." or "Fixes ...").
-1. Write issues before you start to fix something and take the description seriously.
-1. Always create feature branches and PRs, even for small fixes (except maybe changing a line in the docs or so). Use `Closes #1` or `Fixes #1` or [similar](https://help.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword) to link issues to the pull request. You can also use these keywords in commit messages to close issues automatically.
-1. Please always write in the Pull Request title what you are fixing and write a short description, even if it is just one sentence.
-1. When applicable, link the PR to one or more issues that it addresses, fixes or closes (pls note the difference). You may know this, but you can use [magic keywords](https://help.github.com/en/enterprise/2.16/user/github/managing-your-work-on-github/closing-issues-using-keywords) like `Fixes #3` or `Closes #4` in the description and GH will link the issues to the PR and close them when the PR is merged. These also work in commit messages, but do not overuse.
-1. Open Pull Requests that are work in progress as Draft Pull Requests first - if we have those, else mark them with `WIP` in the title.
-1. A nice thing for large PRs is also to include Markdown check box lists (`- [x] tick this off`) to keep track of what you intend to include with the PR and how far you got.
-1. Only squash commits in exceptional circumstances (e.g. after doing many small changes that were reversed later on).
-1. Only maintainers of a code base may assign issues and pull requests to other maintainers, add tags, and merge pull requests.
-1. Merge as often as possible, especially when multiple people are working on the same repository.
-1. Use git tags for ([semantic](https://semver.org/)!) versioning and tag frequently, e.g. `v1.0.0`, `v2.0.0-beta1` or `v3.0.0-rc1`.
+1. Great commit messages are short (`<=50` chars) and start with capitalized action words in imperative ("Add feature X", "Improve performance" rather than "Added ..." or "Fixes ...").
+2. Write issues before you start to fix something and take the description seriously.
+3. Always create feature branches and PRs, even for small fixes. Use `Closes #1` or `Fixes #1` to [link issues to the pull request](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue).
+4. Write a clear PR title describing what you are fixing/adding, with a short description.
+5. Open work-in-progress PRs as [Draft Pull Requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests).
+6. For large PRs, include a checklist (`- [x] task`) to track progress.
+7. Only squash commits in exceptional circumstances (e.g. after many small changes that were reversed).
+8. Only maintainers may assign issues/PRs, add labels, and merge pull requests.
+9. Merge frequently, especially when multiple people work on the same repository.
+10. Use git tags for [semantic](https://semver.org/) versioning: `v1.0.0`, `v2.0.0-beta1`, `v3.0.0-rc1`.
 
+## GitHub CLI
+
+Use the [GitHub CLI](https://cli.github.com/) (`gh`) for common operations:
+
+```bash
+gh repo clone owner/repo      # clone a repository
+gh issue create               # create an issue
+gh issue list                 # list issues
+gh pr create                  # create a pull request
+gh pr checkout 123            # check out a PR locally
+gh pr merge                   # merge current PR
+gh run list                   # list workflow runs
+gh run watch                  # watch a running workflow
+```
+
+## GitHub Actions (CI/CD)
+
+1. Place workflow files in `.github/workflows/`.
+2. Run CI on both `push` and `pull_request` events.
+3. Use specific action versions with SHA pins or version tags (e.g. `actions/checkout@v4`).
+4. Cache dependencies to speed up builds.
+5. Keep workflows focused—separate lint, test, and deploy jobs.
+
+Example workflow structure:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run ruff check .
+      - run: uv run pytest
+```
 
 ## Raising issues
 
-Well written issues are always welcome, even when you are not 100% sure about their relevance. 
+Well written issues are always welcome, even when you are not 100% sure about their relevance.
 
-Write a descriptive title stating
-* the bug: "App breaks when hit with X"
-* the question: "How to do Y?"
-* the feature request: "Add function to perform task Z"
+Write a descriptive title stating:
+- the bug: "App breaks when hit with X"
+- the question: "How to do Y?"
+- the feature request: "Add function to perform task Z"
 
-In the issue description, write what you expect and justify why. If it is a bug report, be as clear as possible 
-about when you encountered the issue. If possible, provide a [Minimal Workable Example (MWE)](https://stackoverflow.com/help/minimal-reproducible-example) 
-so other developers can try reproducing your issue. Often you will actually figure out the cause of your issue while stripping down your code to an MWE.
+In the description, explain what you expect and why. For bug reports, describe when you encountered the issue. Provide a [Minimal Reproducible Example](https://stackoverflow.com/help/minimal-reproducible-example) so others can reproduce it—you'll often figure out the cause while creating one.
 
-Please note: Adding labels and assignment are for maintainers only. On most repos where you are not maintainer, 
-you will not be able to add labels or assign issues to someone. But if you can - leave it to the maintainers, as
-they might have some internal logic and workflow.
+Note: Adding labels and assignment are for maintainers only.
